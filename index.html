@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Complaint Hub — AGM College (Pro)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">
+        <div class="logo">AGM</div>
+        <div class="brand-text">
+          <div class="brand-title">Complaint Hub</div>
+          <div class="brand-sub">AGM College of Engineering &amp; Technology</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" data-target="submit"><i class="fa-solid fa-plus-circle"></i> Submit</button>
+        <button class="nav-item" data-target="explore"><i class="fa-solid fa-table-list"></i> Explore</button>
+        <button class="nav-item" data-target="analytics"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+        <button class="nav-item" data-target="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="small-muted">Quick Login:</div>
+        <select id="quickLogin" class="form-select" style="padding:8px; border-radius:8px; width:100%; margin:8px 0;">
+          <option value="">Select Role</option>
+          <option value="mentor|pass123|Admin">Admin (mentor)</option>
+          <option value="teacher|teach123|Teacher">Teacher (teacher)</option>
+          <option value="student|student123|Student">Student (student)</option>
+        </select>
+        <button id="collapseSidebarBtn" class="btn ghost fullwidth">Collapse</button>
+      </div>
+    </aside>
+    <main class="main" id="main">
+      <header class="topbar">
+        <div class="left">
+          <button id="toggleSidebar" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="Search complaints..." />
+            <button id="clearSearch" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+        <div id="serverStatus" class="server-status">
+          <span id="serverIcon" class="dot red"></span>
+          <span id="serverText">Checking...</span>
+        </div>
+        <div class="right">
+          <button id="themeToggle" class="btn ghost"><i class="fa-solid fa-moon"></i></button>
+        </div>
+      </header>
+      <section class="content" id="content">
+        <section id="dashboard" class="page active-page">
+          <div class="grid">
+            <div class="card kpi">
+              <div class="kpi-head">
+                <div>
+                  <div class="kpi-title">Overview</div>
+                  <div class="small-muted">Realtime snapshot</div>
+                </div>
+                <div class="kpi-actions">
+                  <button id="simulateBtn" class="btn ghost">Simulate</button>
+                  <button id="stopSimBtn" class="btn ghost">Stop</button>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-row">
+                  <div><div id="kpiTotal" class="kpi-num">—</div><div class="small-muted">Total</div></div>
+                  <div><div id="kpiOpen" class="kpi-num">—</div><div class="small-muted">Open</div></div>
+                  <div><div id="kpiUnder" class="kpi-num">—</div><div class="small-muted">Under Review</div></div>
+                  <div><div id="kpiResolved" class="kpi-num">—</div><div class="small-muted">Resolved</div></div>
+                </div>
+                <div class="completion mt-12">
+                  <div class="comp-left">
+                    <div class="comp-title">Completion</div>
+                    <div id="completionText" class="small-muted">—</div>
+                  </div>
+                  <div class="comp-bar-outer" aria-hidden="true">
+                    <div id="completionBar" class="comp-bar-inner" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div>Status Distribution</div><div class="small-muted">Submitted / Under Review / Resolved</div></div>
+              <div class="card-body"><canvas id="statusChart" aria-label="Status distribution" role="img"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div>Category Breakdown</div><div class="small-muted">Counts per category</div></div>
+              <div class="card-body"><canvas id="categoryChart" aria-label="Complaints by category" role="img"></canvas></div>
+            </div>
+            <div class="card recent-card">
+              <div class="card-head"><div>Recent Complaints</div><div class="small-muted">Latest submissions</div></div>
+              <div id="recentList" class="card-body" aria-live="polite"></div>
+            </div>
+          </div>
+        </section>
+        <section id="submit" class="page">
+          <div class="card">
+            <div class="card-head"><div>Submit Complaint</div><div class="small-muted">Add details & optional attachment</div></div>
+            <div class="card-body">
+              <form id="submitForm" class="form-grid" autocomplete="off">
+                <input id="nameInput" name="name" placeholder="Full name (optional)" />
+                <input id="rollInput" name="roll" placeholder="AGM Roll No (optional)" />
+                <select id="categorySelect" aria-label="Category"><option>Academics</option><option>Infrastructure</option><option>Faculty</option><option>Harassment</option><option>Other</option></select>
+                <select id="prioritySelect" aria-label="Priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
+                <input id="titleInput" name="title" placeholder="Title" required />
+                <input id="tagsInput" name="tags" placeholder="Tags (comma separated)" />
+                <textarea id="descriptionInput" name="description" rows="5" placeholder="Describe the issue"></textarea>
+                <input id="attachInput" name="attachment" type="file" />
+                <div class="form-actions">
+                  <button id="submitBtn" class="btn primary">Submit</button>
+                  <button id="resetBtn" type="button" class="btn ghost">Reset</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+        <section id="explore" class="page">
+          <div class="card">
+            <div class="card-head">
+              <div>Explore complaints</div>
+              <div class="small-muted">Filter, sort, import/export</div>
+            </div>
+            <div class="card-body">
+              <div class="controls-row">
+                <div class="controls-left">
+                  <select id="filterCategory"><option value="">All Categories</option></select>
+                  <select id="filterStatus"><option value="">All Status</option><option value="Submitted">Submitted</option><option value="Under Review">Under Review</option><option value="Resolved">Resolved</option></select>
+                  <select id="sortSelect"><option value="new">Newest</option><option value="old">Oldest</option><option value="priority">Priority</option></select>
+                </div>
+                <div class="controls-right">
+                  <input id="csvInput" type="file" accept=".csv" />
+                  <button id="importBtn" class="btn ghost">Import CSV</button>
+                  <button id="exportBtn" class="btn primary">Export CSV</button>
+                </div>
+              </div>
+              <div id="cardsContainer" class="cards-grid"></div>
+            </div>
+          </div>
+        </section>
+        <section id="analytics" class="page">
+          <div class="card">
+            <div class="card-head"><div>Detailed Analytics</div><div class="small-muted">Priority & resolved history</div></div>
+            <div class="card-body analytics-grid">
+              <div>
+                <h6>By Priority</h6>
+                <canvas id="priorityChart"></canvas>
+              </div>
+              <div>
+                <h6>Resolved Over Time</h6>
+                <canvas id="resolvedChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="settings" class="page">
+          <div class="card">
+            <div class="card-head"><div>Settings & Assistant</div><div class="small-muted">Admin demo / assistant</div></div>
+            <div class="card-body settings-grid">
+              <div>
+                <h6>Admin / Teacher Login</h6>
+                <input id="loginUser" placeholder="username" />
+                <input id="loginPass" placeholder="password" type="password" />
+                <div class="form-actions">
+                  <button id="loginBtn" class="btn primary">Login</button>
+                  <button id="logoutBtn" class="btn ghost" style="display:none">Logout</button>
+                </div>
+                <p class="small-muted">Logging in enables Resolve / Mark actions in UI (demo only).</p>
+              </div>
+              <div>
+                <h6>Assistant</h6>
+                <div class="assistant-box">
+                  <div id="assistantMessages" class="assistant-messages" aria-live="polite"></div>
+                  <div class="assistant-input">
+                    <input id="assistantInput" placeholder="Ask: how to submit / how many resolved / export" />
+                    <button id="assistantSend" class="btn primary">Send</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <div id="toastRoot" aria-live="polite" aria-atomic="true"></div>
+  <script src="script_full.js" defer></script>
+</body>
+</html>
